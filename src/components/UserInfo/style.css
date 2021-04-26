@@ -1,0 +1,31 @@
+.user-info {
+  /* position: relative; */
+  margin-left: 30px;
+  height: 45px;
+  color: #fff;
+}
+
+.user-info .avatar {
+  /* position: absolute;
+  top: 8px; */
+}
+
+.user-info .username {
+  padding: 0 10px;
+  /* position: absolute;
+  padding: 0.3em 0.7em;
+  left: 70px;
+  top: 8.5px; */
+  /* background-color: azure; */
+  /* border-radius: 5%; */
+  /* border: 1px solid #aaa; */
+  /* box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.4); */
+}
+
+.user-info .user-dropdown {
+  margin-top: 6px;
+  /* position: absolute;
+  padding: 0.3em 0.7em;
+  top: 8.5px;
+  right: 0px; */
+}
