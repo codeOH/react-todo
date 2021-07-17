@@ -1,6 +1,6 @@
 import { Menu } from 'antd'
 import './style.css'
-import { Link, NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
 const SiderMenu = props => {
   const handleMenuClick = () => {}

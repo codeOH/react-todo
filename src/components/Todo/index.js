@@ -1,27 +1,24 @@
-import React, { useState, useEffect, memo, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { deepClone, isEmptyObj } from '../../api/util'
+import TodoInput from './TodoInput'
+import TodoItem from '../TodoItem'
 import './style.css'
 
 const Todo = props => {
-  const [inputValue, setInputValue] = useState('')
   const [todoList, setTodoList] = useState([])
-  const [currentToodoList, setCurrentTodoList] = useState([])
+  const [showMode, setShowMode] = useState('all')
   const btnAll = useRef(null)
   const btnActive = useRef(null)
   const btnCompleted = useRef(null)
 
-  const handleChange = e => {
-    setInputValue(e.target.value)
-  }
-
-  const handleKeyPress = e => {
-    if (e.charCode === 13 && inputValue != '') {
+  const handleKeyPress = (e, inputValue, callback) => {
+    if (e.charCode === 13 && inputValue !== '') {
+      console.log('handleKeyPress')
       setTodoList([
         { id: Date.now().toString(36), value: inputValue, isCompleted: false },
         ...todoList
       ])
-      setInputValue('')
-      return
+      callback()
     }
   }
 
@@ -39,95 +36,138 @@ const Todo = props => {
     if (flag) {
       newTodoList = todoList.map(item => {
         item.isCompleted = true
-        return item
+        return Object.assign({}, item)
       })
     } else {
       newTodoList = todoList.map(item => {
         item.isCompleted = !item.isCompleted
-        return item
+        return Object.assign({}, item)
       })
     }
     setTodoList(newTodoList)
   }
 
-  const handleStatusChange = (e, id) => {
+  const handleStatusChange = (e, id, checked) => {
     // 将当前分项的isCompleted字段置为!该字段
     // console.log(e)
+    console.log(todoList)
+
     const newTodoList = todoList.map(item => {
       if (item.id === id) {
-        item.isCompleted = !item.isCompleted
+        return {
+          id,
+          value: item.value,
+          isCompleted: !checked
+        }
       }
 
-      return item
+      return Object.assign({}, item)
     })
 
-    setTodoList(newTodoList)
+    setTodoList(Object.assign([], newTodoList))
   }
+
+  // ref在react生命周期中只存在一个引用，通过currrent访问的永远是最新值
+  // const handleStatusChangeRef = useRef(handleStatusChange)
 
   const handleSelectAllClick = e => {
     btnActive.current.className = ''
     btnCompleted.current.className = ''
     e.target.className = 'selected'
-    setCurrentTodoList(deepClone(todoList))
+    // setTodoList(deepClone(todoList))
+    setShowMode('all')
   }
+
+  // useEffect(() => {
+  //   handleStatusChangeRef.current = handleStatusChange
+  // })
 
   const handleSelectActiveClick = e => {
     btnAll.current.className = ''
     btnCompleted.current.className = ''
     e.target.className = 'selected'
 
-    setCurrentTodoList(todoList.filter(item => !item.isCompleted))
+    setTodoList(todoList.filter(item => !item.isCompleted))
+    setShowMode('active')
   }
 
   const handleSelectCompletedClick = e => {
     btnAll.current.className = ''
     btnActive.current.className = ''
     e.target.className = 'selected'
-    setCurrentTodoList(todoList.filter(item => item.isCompleted))
+    setShowMode('completed')
   }
 
   const handleClearCompletedClick = e => {
+    console.log('handleClearCompletedClick')
     setTodoList(todoList.filter(item => !item.isCompleted))
   }
 
-  useEffect(() => {
-    const newTodoList = deepClone(todoList)
-    setCurrentTodoList(newTodoList)
-  }, [todoList])
+  // 无用功
+  const renderTodoItem = () => {
+    let res = null
+    console.log(showMode)
+
+    switch (showMode) {
+      case 'all':
+        res = todoList.map(item => (
+          <TodoItem
+            key={item.id}
+            todoList={todoList}
+            item={item}
+            handleStatusChange={e => {
+              handleStatusChange(e, item.id, item.isCompleted)
+            }}
+          />
+        ))
+        break
+      case 'active':
+        res = todoList
+          .filter(item => !item.isCompleted)
+          .map(item => {
+            return (
+              <TodoItem
+                key={item.id}
+                item={item}
+                handleStatusChange={handleStatusChange}
+              />
+            )
+          })
+        break
+      case 'completed':
+        console.log(todoList)
+        res = todoList
+          .filter(item => item.isCompleted)
+          .map(item => {
+            return (
+              <TodoItem
+                key={item.id}
+                item={item}
+                handleStatusChange={handleStatusChange}
+              />
+            )
+          })
+        break
+    }
+
+    return res
+  }
+
+  // useEffect(() => {
+  //   handleStatusChangeRef.current = handleStatusChange
+  // })
 
   return (
     <div className="todo-container">
-      <div className="input-box">
-        <label>
-          <i className="iconfont" onClick={handleAllStatusChange}>
-            &#xe602;
-          </i>
-        </label>
-        <input
-          className="input"
-          type="text"
-          value={inputValue}
-          onChange={handleChange}
-          onKeyPress={handleKeyPress}
-        />
-      </div>
+      <TodoInput
+        handleAllStatusChange={e => {
+          handleAllStatusChange()
+        }}
+        handleKeyPress={handleKeyPress}
+      />
 
       {isEmptyObj(todoList) ? null : (
-        <ul className="todo-list">
-          {currentToodoList.map(item => (
-            <li className="todo-list-item" key={item.id}>
-              <input
-                type="checkbox"
-                className="finish-checkbox"
-                checked={item.isCompleted}
-                onChange={e => {
-                  handleStatusChange(e, item.id)
-                }}
-              />
-              <span className="item-content">{item.value}</span>
-            </li>
-          ))}
-        </ul>
+        <ul className="todo-list">{renderTodoItem()}</ul>
       )}
 
       <div className="footer">
@@ -154,5 +194,4 @@ const Todo = props => {
     </div>
   )
 }
-
 export default Todo

@@ -1,18 +1,10 @@
 import { useState } from 'react'
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-  Redirect
-} from 'react-router-dom'
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom'
 import { Card, Layout, Menu, BackTop } from 'antd'
 import Todo from './components/Todo/index'
 
 import './App.css'
 import './assets/global.css'
-import SiderMenu from './components/SiderMenu'
-import UserInfo from './components/UserInfo'
 
 const { Header, Footer, Sider, Content } = Layout
 const { SubMenu } = Menu
@@ -20,6 +12,7 @@ const { SubMenu } = Menu
 function App() {
   const [isLogged, setIsLogged] = useState(true)
   const [theme, setTheme] = useState('light')
+
   return (
     <Layout>
       <Router>

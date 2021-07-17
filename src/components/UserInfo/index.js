@@ -1,5 +1,5 @@
 import { Avatar, Menu, Dropdown } from 'antd'
-import { UserOutlined, DownOutlined } from '@ant-design/icons'
+import { UserOutlined } from '@ant-design/icons'
 import './style.css'
 
 const UserInfo = props => {
